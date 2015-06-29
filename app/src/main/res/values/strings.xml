@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Kitten Viewer</string>
 
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- EditText Hints -->
+    <string name="width">width</string>
+    <string name="height">height</string>
 </resources>

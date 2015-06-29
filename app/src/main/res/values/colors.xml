@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme Colors -->
+    <color name="color_primary">@color/grey_900</color>
+    <color name="color_primary_dark">@android:color/black</color>
+</resources>
