@@ -41,7 +41,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         super.onCreate(savedInstanceState);
     }
 
-    private void initializeViewLayout() {
+    private void initializeView() {
         setContentView(R.layout.activity_kitten_photo);
 
         // Use Toolbar as Action Bar
@@ -100,22 +100,22 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
         // Unbind from ImageDownloadServiceImpl
         if (mServiceBound) {
-            mServiceBound = false;
             unbindService(this);
+            mServiceBound = false;
         }
     }
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        mServiceBound = true;
-
+        // Bind to service
         ImageDownloadServiceImpl.ImageDownloadBinder binder =
                 (ImageDownloadServiceImpl.ImageDownloadBinder) service;
 
         mImageDownloadService = binder.getService();
+        mServiceBound = true;
 
         // Initialize View Presenter
-        initializeViewLayout();
+        initializeView();
 
         mPresenter = new KittenPhotoPresenterImpl(this);
         mPresenter.onViewCreated();

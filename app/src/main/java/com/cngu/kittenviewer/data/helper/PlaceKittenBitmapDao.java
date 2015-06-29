@@ -1,0 +1,15 @@
+package com.cngu.kittenviewer.data.helper;
+
+import android.graphics.Bitmap;
+
+import com.cngu.kittenviewer.exception.PlaceKittenErrorException;
+import com.cngu.kittenviewer.exception.PlaceKittenMissingPhotoException;
+import com.cngu.kittenviewer.ui.model.PlaceKittenArgs;
+
+import java.io.IOException;
+
+public interface PlaceKittenBitmapDao {
+    Bitmap getBitmap(PlaceKittenArgs args) throws PlaceKittenErrorException,
+                                                  PlaceKittenMissingPhotoException,
+                                                  IOException;
+}
