@@ -3,9 +3,11 @@ package com.cngu.kittenviewer.ui.view;
 import android.graphics.Bitmap;
 
 public interface KittenPhotoView {
-    int getWidth();
+    int getRequestedPhotoWidth();
 
-    int getHeight();
+    int getRequestedPhotoHeight();
+
+    void setSearchButtonEnabled(boolean enabled);
 
     void setKittenBitmap(Bitmap kittenBitmap);
 }

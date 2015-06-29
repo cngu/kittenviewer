@@ -3,7 +3,9 @@
 
     <string name="action_settings">Settings</string>
 
-    <!-- EditText Hints -->
+    <!-- EditText -->
     <string name="width">width</string>
     <string name="height">height</string>
+    <string name="default_width">800</string>
+    <string name="default_height">600</string>
 </resources>

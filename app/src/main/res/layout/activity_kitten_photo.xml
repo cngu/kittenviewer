@@ -16,40 +16,48 @@
         app:popupTheme="@style/ToolbarPopupThemeOverlay"
         android:focusableInTouchMode="true">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content">
 
             <EditText
                 android:id="@+id/width_edittext"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:text="@string/default_width"
                 android:hint="@string/width"
+                android:maxLength="4"
                 android:inputType="number"/>
 
             <EditText
                 android:id="@+id/height_edittext"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/width_edittext"
+                android:layout_toEndOf="@id/width_edittext"
+                android:layout_marginStart="25dp"
+                android:layout_marginLeft="25dp"
+                android:text="@string/default_height"
                 android:hint="@string/height"
+                android:maxLength="4"
                 android:inputType="number"/>
 
             <Button
                 android:id="@+id/search_button"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:text="@string/abc_search_hint"/>
 
-        </LinearLayout>
+        </RelativeLayout>
 
     </android.support.v7.widget.Toolbar>
 
     <ImageView
         android:id="@+id/kitten_imageview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"/>
 
 </LinearLayout>
