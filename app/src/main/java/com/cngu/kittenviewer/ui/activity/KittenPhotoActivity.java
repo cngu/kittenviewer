@@ -1,7 +1,11 @@
 package com.cngu.kittenviewer.ui.activity;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -14,12 +18,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.cngu.kittenviewer.R;
+import com.cngu.kittenviewer.domain.service.ImageDownloadServiceImpl;
 import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenter;
 import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenterImpl;
 import com.cngu.kittenviewer.ui.view.KittenPhotoView;
 
-
-public class KittenPhotoActivity extends AppCompatActivity implements KittenPhotoView {
+public class KittenPhotoActivity extends AppCompatActivity implements KittenPhotoView,
+                                                                      ServiceConnection {
 
     private EditText mWidthEditText;
     private EditText mHeightEditText;
@@ -28,9 +33,15 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private KittenPhotoPresenter mPresenter;
 
+    private boolean mServiceBound = false;
+    private ImageDownloadServiceImpl mImageDownloadService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    private void initializeViewLayout() {
         setContentView(R.layout.activity_kitten_photo);
 
         // Use Toolbar as Action Bar
@@ -70,10 +81,50 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
                 mPresenter.onSearchButtonClicked();
             }
         });
+    }
 
-        // Initialize Presenter
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // Bind to ImageDownloadServiceImpl
+        if (!mServiceBound) {
+            Intent bindIntent = new Intent(this, ImageDownloadServiceImpl.class);
+            bindService(bindIntent, this, BIND_AUTO_CREATE);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // Unbind from ImageDownloadServiceImpl
+        if (mServiceBound) {
+            mServiceBound = false;
+            unbindService(this);
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        mServiceBound = true;
+
+        ImageDownloadServiceImpl.ImageDownloadBinder binder =
+                (ImageDownloadServiceImpl.ImageDownloadBinder) service;
+
+        mImageDownloadService = binder.getService();
+
+        // Initialize View Presenter
+        initializeViewLayout();
+
         mPresenter = new KittenPhotoPresenterImpl(this);
-        mPresenter.onCreate();
+        mPresenter.onViewCreated();
+        mPresenter.onServiceConnected(mImageDownloadService);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        mServiceBound = false;
     }
 
     @Override
