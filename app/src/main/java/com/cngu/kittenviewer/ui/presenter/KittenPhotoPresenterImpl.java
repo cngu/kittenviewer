@@ -5,7 +5,7 @@ import android.util.Log;
 import com.cngu.kittenviewer.ui.view.KittenPhotoView;
 
 public class KittenPhotoPresenterImpl implements KittenPhotoPresenter {
-    private static final String TAG = "KittenPhotoPresenterImpl";
+    private static final String TAG = "KittenPhotoPresenter";
     private static final boolean DEBUG = true;
 
     private KittenPhotoView mView;
