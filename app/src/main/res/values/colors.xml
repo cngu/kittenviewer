@@ -3,5 +3,7 @@
     <!-- Theme Colors -->
     <color name="color_primary">@color/grey_900</color>
     <color name="color_primary_dark">@android:color/black</color>
-    <color name="color_accent">#FF4285F4</color>
+
+    <!-- Widget Misc Colors (that could not be defined in styles)-->
+    <color name="progressbar_tint">#FF4285F4</color>
 </resources>

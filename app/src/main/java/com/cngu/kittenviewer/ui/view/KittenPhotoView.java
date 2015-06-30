@@ -9,7 +9,9 @@ public interface KittenPhotoView {
 
     void setSearchButtonEnabled(boolean enabled);
 
-    void setKittenBitmap(Bitmap kittenBitmap);
+    void setKittenPhoto(Bitmap kittenBitmap);
 
     void setDownloadProgressBarVisibility(boolean visible);
+
+    void showToast(int msgResId);
 }

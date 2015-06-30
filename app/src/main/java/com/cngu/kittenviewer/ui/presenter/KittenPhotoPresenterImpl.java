@@ -1,10 +1,9 @@
 package com.cngu.kittenviewer.ui.presenter;
 
 import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
+import com.cngu.kittenviewer.R;
 import com.cngu.kittenviewer.data.listener.DownloadListener;
 import com.cngu.kittenviewer.domain.service.ImageDownloadService;
 import com.cngu.kittenviewer.ui.activity.UIThreadExecutor;
@@ -52,33 +51,33 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
                     download.getWidth(), download.getHeight()));
         }
 
-        setDownloadProgressBarVisibility(false);
-        setKittenBitmap(download);
+        showDownloadProgress(false, 0);
+        showKittenPhoto(download);
     }
 
     @Override
     public void onDownloadMissing() {
         if (DEBUG) Log.i(TAG, "Placekitten did not return an image with the requested dimensions");
 
-        setDownloadProgressBarVisibility(false);
+        showDownloadProgress(false, R.string.msg_placekitten_missing_photo);
     }
 
     @Override
     public void onDownloadError() {
         if (DEBUG) Log.i(TAG, "Placekitten returned an error");
 
-        setDownloadProgressBarVisibility(false);
+        showDownloadProgress(false, R.string.msg_placekitten_error);
     }
 
     @Override
     public void onNetworkConnectionLost() {
         if (DEBUG) Log.i(TAG, "WiFi connection was lost during download");
 
-        setDownloadProgressBarVisibility(false);
+        showDownloadProgress(false, R.string.msg_not_connected_to_wifi);
     }
 
     private void downloadPlaceKittenPhoto() {
-        setDownloadProgressBarVisibility(true);
+        showDownloadProgress(true, 0);
 
         int reqWidth = mView.getRequestedPhotoWidth();
         int reqHeight = mView.getRequestedPhotoHeight();
@@ -87,20 +86,25 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
         mImageDownloadService.downloadBitmap(args, this);
     }
 
-    private void setDownloadProgressBarVisibility(final boolean visible) {
+    private void showDownloadProgress(final boolean progressBarVisible, final int msgResId) {
         mUiThreadExecutor.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mView.setDownloadProgressBarVisibility(visible);
+                mView.setDownloadProgressBarVisibility(progressBarVisible);
+
+                if (msgResId > 0) {
+                    // Valid resources ids are always positive
+                    mView.showToast(msgResId);
+                }
             }
         });
     }
 
-    private void setKittenBitmap(final Bitmap bitmap) {
+    private void showKittenPhoto(final Bitmap bitmap) {
         mUiThreadExecutor.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mView.setKittenBitmap(bitmap);
+                mView.setKittenPhoto(bitmap);
             }
         });
     }

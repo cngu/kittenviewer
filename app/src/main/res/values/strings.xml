@@ -8,4 +8,9 @@
     <string name="height">height</string>
     <string name="default_width">800</string>
     <string name="default_height">600</string>
+
+    <!-- Toast -->
+    <string name="msg_placekitten_missing_photo">We couldn\'t find a photo with that size :(</string>
+    <string name="msg_placekitten_error">CUTENESS..OVERLOAD..ERROR..! Try a different size!</string>
+    <string name="msg_not_connected_to_wifi">Oops, you don\'t have a WiFi connection!</string>
 </resources>

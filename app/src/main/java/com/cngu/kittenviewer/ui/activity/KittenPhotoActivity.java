@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.widget.MyCircleImageView;
@@ -20,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.cngu.kittenviewer.R;
 import com.cngu.kittenviewer.domain.service.ImageDownloadService;
@@ -35,12 +35,13 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     private EditText mWidthEditText;
     private EditText mHeightEditText;
     private Button mSearchButton;
-    //private ProgressBar mProgressBar;
     private MyCircleImageView mCircleView;
     private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
 
     private KittenPhotoPresenter mPresenter;
+
+    private Toast mToast;
 
     private Intent mServiceIntent;
     private boolean mServiceBound = false;
@@ -117,7 +118,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         mCircleView.setLayoutParams(layoutParams);
 
 
-        mProgress.setColorSchemeColors(getResources().getColor(R.color.color_accent));
+        mProgress.setColorSchemeColors(getResources().getColor(R.color.progressbar_tint));
         mProgress.setAlpha(255);
         mProgress.start();
     }
@@ -210,7 +211,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     }
 
     @Override
-    public void setKittenBitmap(Bitmap kittenBitmap) {
+    public void setKittenPhoto(Bitmap kittenBitmap) {
         mKittenImageView.setImageBitmap(kittenBitmap);
     }
 
@@ -223,5 +224,15 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
             mProgress.stop();
             mCircleView.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void showToast(int msgResId) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        mToast = Toast.makeText(this, msgResId, Toast.LENGTH_SHORT);
+        mToast.show();
     }
 }
