@@ -28,7 +28,7 @@
                 android:hint="@string/width"
                 android:maxLength="4"
                 android:inputType="number"
-                android:imeOptions="actionNext"
+                android:imeOptions="actionNext|flagNoExtractUi"
                 android:nextFocusRight="@+id/height_edittext"
                 android:nextFocusForward="@id/height_edittext"/>
 
@@ -44,7 +44,7 @@
                 android:hint="@string/height"
                 android:maxLength="4"
                 android:inputType="number"
-                android:imeOptions="actionDone"/>
+                android:imeOptions="actionDone|flagNoExtractUi"/>
 
             <Button
                 android:id="@+id/search_button"

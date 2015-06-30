@@ -44,6 +44,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     private MyCircleImageView mProgressCircleView;
     private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
+    private Bitmap mKittenBitmap;
 
     private KittenPhotoPresenter mPresenter;
 
@@ -163,18 +164,18 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         if (inState != null) {
             String width = inState.getString(BUNDLE_KEY_WIDTH);
             String height = inState.getString(BUNDLE_KEY_HEIGHT);
-            Bitmap bitmap = inState.getParcelable(BUNDLE_KEY_BITMAP);
+            mKittenBitmap = inState.getParcelable(BUNDLE_KEY_BITMAP);
 
             mWidthEditText.setText(width);
             mHeightEditText.setText(height);
-            mKittenImageView.setImageBitmap(bitmap);
+            mKittenImageView.setImageBitmap(mKittenBitmap);
         }
     }
 
     private void saveViewState(Bundle outState) {
         String width = mWidthEditText.getText().toString();
         String height = mHeightEditText.getText().toString();
-        Bitmap bitmap = ((BitmapDrawable)mKittenImageView.getBackground()).getBitmap();
+        Bitmap bitmap = mKittenBitmap;
 
         outState.putString(BUNDLE_KEY_WIDTH, width);
         outState.putString(BUNDLE_KEY_HEIGHT, height);
@@ -196,9 +197,13 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
         initializeView();
         restoreViewState(mSavedState);
-        mSavedState = null;
 
-        mPresenter.onViewCreated();
+        // Notify presenter of first view creation only
+        if (mSavedState == null) {
+            mPresenter.onViewCreated();
+        }
+
+        mSavedState = null;
     }
 
     @Override
@@ -248,7 +253,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     @Override
     public void setKittenPhoto(Bitmap kittenBitmap) {
-        mKittenImageView.setImageBitmap(kittenBitmap);
+        mKittenBitmap = kittenBitmap;
+        mKittenImageView.setImageBitmap(mKittenBitmap);
     }
 
     @Override
