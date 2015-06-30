@@ -9,11 +9,15 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.cngu.kittenviewer.data.dao.PlaceKittenBitmapCache;
+import com.cngu.kittenviewer.data.dao.PlaceKittenBitmapCacheImpl;
 import com.cngu.kittenviewer.data.dao.PlaceKittenBitmapDao;
 import com.cngu.kittenviewer.data.dao.PlaceKittenBitmapDaoImpl;
 import com.cngu.kittenviewer.data.listener.DownloadListener;
 import com.cngu.kittenviewer.domain.task.PlaceKittenDownloadTask;
 import com.cngu.kittenviewer.ui.model.PlaceKittenArgs;
+
+import java.lang.ref.WeakReference;
 
 public class ImageDownloadServiceImpl extends Service implements ImageDownloadService,
                                                                  DownloadListener<Bitmap> {
@@ -24,9 +28,10 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
 
     private ConnectivityManager mConnectivityManager;
     private PlaceKittenBitmapDao mPlaceKittenDao;
+    private PlaceKittenBitmapCache mBitmapCache;
 
     private PlaceKittenDownloadTask mDownloadTask;
-    private DownloadListener<Bitmap> mClientDownloadListener;
+    private WeakReference<DownloadListener<Bitmap>> mClientDownloadListener;
 
     @Override
     public void onCreate() {
@@ -35,6 +40,7 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
 
         mConnectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         mPlaceKittenDao = new PlaceKittenBitmapDaoImpl();
+        mBitmapCache = new PlaceKittenBitmapCacheImpl();
     }
 
     @Override
@@ -56,8 +62,15 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
 
     @Override
     public void downloadBitmap(PlaceKittenArgs args, DownloadListener<Bitmap> downloadListener) {
-        if (DEBUG) Log.i(TAG, "Beginning bitmap download with args: " + args);
-        mClientDownloadListener = downloadListener;
+        if (DEBUG) Log.i(TAG, "Received request to download bitmap with args: " + args);
+        mClientDownloadListener = new WeakReference<>(downloadListener);
+
+        Bitmap cachedBitmap = mBitmapCache.get(args);
+        if (cachedBitmap != null) {
+            if (DEBUG) Log.i(TAG, "Found requested bitmap in cache; not going to re-download it");
+            notifyClientOfCompletedDownload(cachedBitmap);
+            return;
+        }
 
         if (mDownloadTask != null) {
             if (mDownloadTask.getArgs().equals(args)) {
@@ -75,25 +88,55 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
 
     @Override
     public void onDownloadComplete(Bitmap download) {
-        mClientDownloadListener.onDownloadComplete(download);
+        PlaceKittenArgs downloadArgs = mDownloadTask.getArgs();
+        mBitmapCache.put(downloadArgs, download);
+
+        notifyClientOfCompletedDownload(download);
         mDownloadTask = null;
+    }
+
+    private void notifyClientOfCompletedDownload(Bitmap download) {
+        DownloadListener<Bitmap> listener = mClientDownloadListener.get();
+        if (listener != null) {
+            listener.onDownloadComplete(download);
+        } else {
+            if (DEBUG) Log.e(TAG, "Client died; failed to return bitmap");
+        }
     }
 
     @Override
     public void onDownloadMissing() {
-        mClientDownloadListener.onDownloadMissing();
+        DownloadListener<Bitmap> listener = mClientDownloadListener.get();
+        if (listener != null) {
+            listener.onDownloadMissing();
+        } else {
+            if (DEBUG) Log.e(TAG, "Client died; failed to notify client of missing download");
+        }
+
         mDownloadTask = null;
     }
 
     @Override
     public void onDownloadError() {
-        mClientDownloadListener.onDownloadError();
+        DownloadListener<Bitmap> listener = mClientDownloadListener.get();
+        if (listener != null) {
+            listener.onDownloadError();
+        } else {
+            if (DEBUG) Log.e(TAG, "Client died; failed to notify client of download error");
+        }
+
         mDownloadTask = null;
     }
 
     @Override
     public void onNetworkConnectionLost() {
-        mClientDownloadListener.onNetworkConnectionLost();
+        DownloadListener<Bitmap> listener = mClientDownloadListener.get();
+        if (listener != null) {
+            listener.onNetworkConnectionLost();
+        } else {
+            if (DEBUG) Log.e(TAG, "Client died; failed to notify client of lost network connection");
+        }
+
         mDownloadTask = null;
     }
 
