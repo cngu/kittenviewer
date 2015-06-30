@@ -2,10 +2,13 @@ package com.cngu.kittenviewer.data.helper;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.InputStream;
 
 public class BitmapDecoderImpl implements BitmapDecoder {
+    private static final String TAG = "BitmapDecoderImpl";
+    private static final boolean DEBUG = true;
 
     private static final int MAX_TEXTURE_SIZE = 2048;
 
@@ -17,11 +20,22 @@ public class BitmapDecoderImpl implements BitmapDecoder {
 
     @Override
     public void setRequestedBitmapSize(int requestedWidth, int requestedHeight) {
-        mDecodeOptions.inSampleSize = calculateSampleSize(requestedWidth, requestedHeight);
+        int sampleSize = calculateSampleSize(requestedWidth, requestedHeight);
+
+        if (DEBUG) {
+            Log.i(TAG, String.format("Using sample size of %d: (%dx%d) > (%dx%d)",
+                    sampleSize, requestedWidth, requestedHeight,
+                    requestedWidth/sampleSize, requestedHeight/sampleSize));
+        }
+
+        mDecodeOptions.inSampleSize = sampleSize;
     }
 
     @Override
     public Bitmap decodeBitmap(InputStream is) {
+        if (DEBUG) {
+            Log.i(TAG, "Decoding placekitten image to Bitmap...");
+        }
         return BitmapFactory.decodeStream(is, null, mDecodeOptions);
     }
 

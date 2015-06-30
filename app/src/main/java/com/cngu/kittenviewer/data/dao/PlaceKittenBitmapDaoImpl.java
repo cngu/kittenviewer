@@ -29,7 +29,7 @@ public class PlaceKittenBitmapDaoImpl implements PlaceKittenBitmapDao {
         InputStream is = null;
         try {
             // Generate placekitten URL and open a connection
-            if (DEBUG) Log.i(TAG, "Establishing connection to placekitten");
+            if (DEBUG) Log.i(TAG, "Establishing connection to placekitten...");
             PlaceKittenUrlGeneratorImpl requestGenerator = new PlaceKittenUrlGeneratorImpl();
             URL url = requestGenerator.generateRequest(args);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -46,7 +46,6 @@ public class PlaceKittenBitmapDaoImpl implements PlaceKittenBitmapDao {
                 throw new PlaceKittenMissingPhotoException();
             }
 
-            if (DEBUG) Log.i(TAG, "Decoding placekitten image now...");
             is = connection.getInputStream();
             return decoder.decodeBitmap(is);
         } finally {

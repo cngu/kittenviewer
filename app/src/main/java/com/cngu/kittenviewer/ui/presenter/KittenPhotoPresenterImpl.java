@@ -91,7 +91,7 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
         mUiThreadExecutor.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mView.setDownloadProgressBarVisibility(false);
+                mView.setDownloadProgressBarVisibility(visible);
             }
         });
     }
