@@ -7,8 +7,8 @@ import com.cngu.kittenviewer.ui.model.PlaceKittenArgs;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class PKRequestGeneratorImpl implements PKRequestGenerator {
-    private static final String TAG = "PKRequestGenerator";
+public class PlaceKittenUrlGeneratorImpl implements PlaceKittenUrlGenerator {
+    private static final String TAG = "PlaceKittenUrlGenerator";
     public static final String ENDPOINT = "http://placekitten.com";
     private static final String QUERY_ARGS = "/g/%d/%d";
 

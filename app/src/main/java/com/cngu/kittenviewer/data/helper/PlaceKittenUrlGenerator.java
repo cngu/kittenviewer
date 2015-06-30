@@ -4,6 +4,6 @@ import com.cngu.kittenviewer.ui.model.PlaceKittenArgs;
 
 import java.net.URL;
 
-public interface PKRequestGenerator {
+public interface PlaceKittenUrlGenerator {
     URL generateRequest(PlaceKittenArgs args);
 }

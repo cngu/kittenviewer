@@ -1,8 +1,9 @@
-package com.cngu.kittenviewer.data.helper;
+package com.cngu.kittenviewer.data.dao;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
+import com.cngu.kittenviewer.data.helper.BitmapDecoder;
+import com.cngu.kittenviewer.data.helper.PlaceKittenUrlGeneratorImpl;
 import com.cngu.kittenviewer.exception.PlaceKittenErrorException;
 import com.cngu.kittenviewer.exception.PlaceKittenMissingPhotoException;
 import com.cngu.kittenviewer.ui.model.PlaceKittenArgs;
@@ -25,7 +26,7 @@ public class PlaceKittenBitmapDaoImpl implements PlaceKittenBitmapDao {
         InputStream is = null;
         try {
             // Generate placekitten URL and open a connection
-            PKRequestGeneratorImpl requestGenerator = new PKRequestGeneratorImpl();
+            PlaceKittenUrlGeneratorImpl requestGenerator = new PlaceKittenUrlGeneratorImpl();
             URL url = requestGenerator.generateRequest(args);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
