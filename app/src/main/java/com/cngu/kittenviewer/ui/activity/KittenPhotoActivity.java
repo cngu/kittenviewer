@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.cngu.kittenviewer.R;
+import com.cngu.kittenviewer.domain.service.ImageDownloadService;
 import com.cngu.kittenviewer.domain.service.ImageDownloadServiceImpl;
 import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenter;
 import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenterImpl;
@@ -33,12 +34,19 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private KittenPhotoPresenter mPresenter;
 
+    private Intent mServiceIntent;
     private boolean mServiceBound = false;
-    private ImageDownloadServiceImpl mImageDownloadService;
+    private ImageDownloadService mImageDownloadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mServiceIntent = new Intent(this, ImageDownloadServiceImpl.class);
+
+        if (savedInstanceState == null) {
+            startService(mServiceIntent);
+        }
     }
 
     private void initializeView() {
@@ -84,25 +92,24 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     }
 
     @Override
-    public void onStart() {
+    protected void onStart() {
         super.onStart();
 
         // Bind to ImageDownloadServiceImpl
         if (!mServiceBound) {
-            Intent bindIntent = new Intent(this, ImageDownloadServiceImpl.class);
-            bindService(bindIntent, this, BIND_AUTO_CREATE);
+            bindService(mServiceIntent, this, BIND_AUTO_CREATE);
         }
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-
+    protected void onStop() {
         // Unbind from ImageDownloadServiceImpl
         if (mServiceBound) {
             unbindService(this);
             mServiceBound = false;
         }
+
+        super.onStop();
     }
 
     @Override

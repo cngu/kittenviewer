@@ -10,7 +10,7 @@ import com.cngu.kittenviewer.ui.model.PlaceKittenArgs;
 import java.io.IOException;
 
 public interface PlaceKittenBitmapDao {
-    Bitmap getBitmap(PlaceKittenArgs args, BitmapDecoder decoder) throws PlaceKittenErrorException,
-                                                                         PlaceKittenMissingPhotoException,
+    Bitmap getBitmap(PlaceKittenArgs args, BitmapDecoder decoder) throws PlaceKittenMissingPhotoException,
+                                                                         PlaceKittenErrorException,
                                                                          IOException;
 }

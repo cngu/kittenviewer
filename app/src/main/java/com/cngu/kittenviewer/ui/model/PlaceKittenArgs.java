@@ -23,4 +23,31 @@ public class PlaceKittenArgs {
     public int getHeight() {
         return mHeight;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PlaceKittenArgs that = (PlaceKittenArgs) o;
+
+        return(mWidth == that.mWidth) &&
+              (mHeight == that.mHeight);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mWidth;
+        result = 31 * result + mHeight;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PlaceKittenArgs{width:%d, height:%d}", mWidth, mHeight);
+    }
 }
