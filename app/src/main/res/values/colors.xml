@@ -3,4 +3,5 @@
     <!-- Theme Colors -->
     <color name="color_primary">@color/grey_900</color>
     <color name="color_primary_dark">@android:color/black</color>
+    <color name="color_accent">#FF4285F4</color>
 </resources>

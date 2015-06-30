@@ -58,10 +58,18 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <ImageView
-        android:id="@+id/kitten_imageview"
+    <RelativeLayout
+        android:id="@+id/photo_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerInside"/>
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/kitten_imageview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"/>
+
+    </RelativeLayout>
+
 
 </LinearLayout>

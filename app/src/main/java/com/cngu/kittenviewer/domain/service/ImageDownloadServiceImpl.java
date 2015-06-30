@@ -56,6 +56,7 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
 
     @Override
     public void downloadBitmap(PlaceKittenArgs args, DownloadListener<Bitmap> downloadListener) {
+        if (DEBUG) Log.i(TAG, "Beginning bitmap download with args: " + args);
         mClientDownloadListener = downloadListener;
 
         if (mDownloadTask != null) {
@@ -81,16 +82,19 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
     @Override
     public void onDownloadMissing() {
         mClientDownloadListener.onDownloadMissing();
+        mDownloadTask = null;
     }
 
     @Override
     public void onDownloadError() {
         mClientDownloadListener.onDownloadError();
+        mDownloadTask = null;
     }
 
     @Override
     public void onNetworkConnectionLost() {
         mClientDownloadListener.onNetworkConnectionLost();
+        mDownloadTask = null;
     }
 
     public class ImageDownloadBinder extends Binder {

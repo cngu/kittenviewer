@@ -4,8 +4,11 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.widget.MyCircleImageView;
+import android.support.v4.widget.MyMaterialProgressDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -16,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.cngu.kittenviewer.R;
 import com.cngu.kittenviewer.domain.service.ImageDownloadService;
@@ -25,11 +29,15 @@ import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenterImpl;
 import com.cngu.kittenviewer.ui.view.KittenPhotoView;
 
 public class KittenPhotoActivity extends AppCompatActivity implements KittenPhotoView,
-                                                                      ServiceConnection {
+                                                                      ServiceConnection,
+                                                                      UIThreadExecutor {
 
     private EditText mWidthEditText;
     private EditText mHeightEditText;
     private Button mSearchButton;
+    //private ProgressBar mProgressBar;
+    private MyCircleImageView mCircleView;
+    private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
 
     private KittenPhotoPresenter mPresenter;
@@ -60,6 +68,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         mWidthEditText = (EditText) findViewById(R.id.width_edittext);
         mHeightEditText = (EditText) findViewById(R.id.height_edittext);
         mSearchButton = (Button) findViewById(R.id.search_button);
+        //mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
         mKittenImageView = (ImageView) findViewById(R.id.kitten_imageview);
 
         // Initialize views
@@ -89,7 +98,33 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
                 mPresenter.onSearchButtonClicked();
             }
         });
+
+        RelativeLayout photoContainer = (RelativeLayout) findViewById(R.id.photo_container);
+
+        mCircleView = new MyCircleImageView(this, CIRCLE_BG_LIGHT, CIRCLE_DIAMETER_LARGE/2);
+        mProgress = new MyMaterialProgressDrawable(this, photoContainer);
+        mProgress.setBackgroundColor(CIRCLE_BG_LIGHT);
+        mCircleView.setImageDrawable(null);
+        mProgress.updateSizes(MyMaterialProgressDrawable.LARGE);
+        mCircleView.setImageDrawable(mProgress);
+        //mCircleView.setVisibility(View.GONE);
+
+        photoContainer.addView(mCircleView);
+
+        RelativeLayout.LayoutParams layoutParams =
+                (RelativeLayout.LayoutParams)mCircleView.getLayoutParams();
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        mCircleView.setLayoutParams(layoutParams);
+
+
+        mProgress.setColorSchemeColors(getResources().getColor(R.color.color_accent));
+        mProgress.setAlpha(255);
+        mProgress.start();
     }
+
+    private static final int CIRCLE_DIAMETER = 40;
+    private static final int CIRCLE_DIAMETER_LARGE = 56;
+    private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
 
     @Override
     protected void onStart() {
@@ -124,9 +159,9 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         // Initialize View Presenter
         initializeView();
 
-        mPresenter = new KittenPhotoPresenterImpl(this);
-        mPresenter.onViewCreated();
+        mPresenter = new KittenPhotoPresenterImpl(this, this);
         mPresenter.onServiceConnected(mImageDownloadService);
+        mPresenter.onViewCreated();
     }
 
     @Override
@@ -177,5 +212,16 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     @Override
     public void setKittenBitmap(Bitmap kittenBitmap) {
         mKittenImageView.setImageBitmap(kittenBitmap);
+    }
+
+    @Override
+    public void setDownloadProgressBarVisibility(boolean visible) {
+        if (visible) {
+            mProgress.start();
+            mCircleView.setVisibility(View.VISIBLE);
+        } else {
+            mProgress.stop();
+            mCircleView.setVisibility(View.GONE);
+        }
     }
 }
