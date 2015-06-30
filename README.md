@@ -4,6 +4,9 @@ An Android app to help you meet your daily dosage of cute kittens!
 ## Image source
 https://placekitten.com
 
+## Libraries
+* [PhotoView](https://github.com/chrisbanes/PhotoView)
+
 ## License
 
     Copyright 2015 Chris Nguyen
