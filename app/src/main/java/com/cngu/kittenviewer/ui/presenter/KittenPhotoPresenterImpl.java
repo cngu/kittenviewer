@@ -47,7 +47,7 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
     @Override
     public void onDownloadComplete(final Bitmap download) {
         if (DEBUG) {
-            Log.i(TAG, String.format("Completed bitmap download of size: %dx%d",
+            Log.i(TAG, String.format("Received bitmap of size: %dx%d",
                     download.getWidth(), download.getHeight()));
         }
 
