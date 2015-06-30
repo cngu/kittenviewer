@@ -31,11 +31,15 @@ import com.cngu.kittenviewer.ui.view.KittenPhotoView;
 public class KittenPhotoActivity extends AppCompatActivity implements KittenPhotoView,
                                                                       ServiceConnection,
                                                                       UIThreadExecutor {
+    private static final String BUNDLE_KEY_WIDTH = "cngu.bundle.key.WIDTH";
+    private static final String BUNDLE_KEY_HEIGHT = "cngu.bundle.key.HEIGHT";
+
+    private Bundle mSavedState;
 
     private EditText mWidthEditText;
     private EditText mHeightEditText;
     private Button mSearchButton;
-    private MyCircleImageView mCircleView;
+    private MyCircleImageView mProgressCircleView;
     private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
 
@@ -50,6 +54,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSavedState = savedInstanceState;
 
         mServiceIntent = new Intent(this, ImageDownloadServiceImpl.class);
 
@@ -69,8 +75,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         mWidthEditText = (EditText) findViewById(R.id.width_edittext);
         mHeightEditText = (EditText) findViewById(R.id.height_edittext);
         mSearchButton = (Button) findViewById(R.id.search_button);
-        //mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
         mKittenImageView = (ImageView) findViewById(R.id.kitten_imageview);
+        RelativeLayout photoContainer = (RelativeLayout) findViewById(R.id.photo_container);
 
         // Initialize views
         TextWatcher tw = new TextWatcher() {
@@ -100,32 +106,29 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
             }
         });
 
-        RelativeLayout photoContainer = (RelativeLayout) findViewById(R.id.photo_container);
+        // Initialize and dynamically add custom progress bar
+        int progressBackground = MyMaterialProgressDrawable.CIRCLE_BG_LIGHT;
+        int progressCircleDiameter = MyMaterialProgressDrawable.CIRCLE_DIAMETER_LARGE;
+        int progressAlpha = MyMaterialProgressDrawable.MAX_ALPHA;
 
-        mCircleView = new MyCircleImageView(this, CIRCLE_BG_LIGHT, CIRCLE_DIAMETER_LARGE/2);
         mProgress = new MyMaterialProgressDrawable(this, photoContainer);
-        mProgress.setBackgroundColor(CIRCLE_BG_LIGHT);
-        mCircleView.setImageDrawable(null);
         mProgress.updateSizes(MyMaterialProgressDrawable.LARGE);
-        mCircleView.setImageDrawable(mProgress);
-        //mCircleView.setVisibility(View.GONE);
-
-        photoContainer.addView(mCircleView);
-
-        RelativeLayout.LayoutParams layoutParams =
-                (RelativeLayout.LayoutParams)mCircleView.getLayoutParams();
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        mCircleView.setLayoutParams(layoutParams);
-
-
+        mProgress.setBackgroundColor(progressBackground);
         mProgress.setColorSchemeColors(getResources().getColor(R.color.progressbar_tint));
-        mProgress.setAlpha(255);
-        mProgress.start();
-    }
+        mProgress.setAlpha(progressAlpha);
 
-    private static final int CIRCLE_DIAMETER = 40;
-    private static final int CIRCLE_DIAMETER_LARGE = 56;
-    private static final int CIRCLE_BG_LIGHT = 0xFFFAFAFA;
+        mProgressCircleView = new MyCircleImageView(this, progressBackground, progressCircleDiameter/2);
+        mProgressCircleView.setImageDrawable(null);
+        mProgressCircleView.setImageDrawable(mProgress);
+
+        mProgressCircleView.setVisibility(View.GONE);
+
+        photoContainer.addView(mProgressCircleView);
+        RelativeLayout.LayoutParams layoutParams =
+                (RelativeLayout.LayoutParams) mProgressCircleView.getLayoutParams();
+        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
+        mProgressCircleView.setLayoutParams(layoutParams);
+    }
 
     @Override
     protected void onStart() {
@@ -149,6 +152,24 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        saveViewState(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    private void restoreViewState(Bundle inState) {
+        if (inState != null) {
+            mWidthEditText.setText(inState.getString(BUNDLE_KEY_WIDTH));
+            mHeightEditText.setText(inState.getString(BUNDLE_KEY_HEIGHT));
+        }
+    }
+
+    private void saveViewState(Bundle outState) {
+        outState.putString(BUNDLE_KEY_WIDTH, mWidthEditText.getText().toString());
+        outState.putString(BUNDLE_KEY_HEIGHT, mHeightEditText.getText().toString());
+    }
+
+    @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         // Bind to service
         ImageDownloadServiceImpl.ImageDownloadBinder binder =
@@ -157,11 +178,14 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         mImageDownloadService = binder.getService();
         mServiceBound = true;
 
-        // Initialize View Presenter
-        initializeView();
-
+        // Initialize View and Presenter
         mPresenter = new KittenPhotoPresenterImpl(this, this);
         mPresenter.onServiceConnected(mImageDownloadService);
+
+        initializeView();
+        restoreViewState(mSavedState);
+        mSavedState = null;
+
         mPresenter.onViewCreated();
     }
 
@@ -219,10 +243,10 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     public void setDownloadProgressBarVisibility(boolean visible) {
         if (visible) {
             mProgress.start();
-            mCircleView.setVisibility(View.VISIBLE);
+            mProgressCircleView.setVisibility(View.VISIBLE);
         } else {
             mProgress.stop();
-            mCircleView.setVisibility(View.GONE);
+            mProgressCircleView.setVisibility(View.GONE);
         }
     }
 

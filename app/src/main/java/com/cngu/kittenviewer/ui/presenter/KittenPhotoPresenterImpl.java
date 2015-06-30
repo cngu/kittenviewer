@@ -77,12 +77,16 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
     }
 
     private void downloadPlaceKittenPhoto() {
-        showDownloadProgress(true, 0);
-
         int reqWidth = mView.getRequestedPhotoWidth();
         int reqHeight = mView.getRequestedPhotoHeight();
-        PlaceKittenArgs args = new PlaceKittenArgs(reqWidth, reqHeight);
+        if (reqWidth <= 0 || reqHeight <= 0) {
+            Log.e(TAG, "Can not download photo with invalid size dimensions <=0");
+            return;
+        }
 
+        showDownloadProgress(true, 0);
+
+        PlaceKittenArgs args = new PlaceKittenArgs(reqWidth, reqHeight);
         mImageDownloadService.downloadBitmap(args, this);
     }
 
