@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.widget.MyCircleImageView;
@@ -34,7 +33,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
                                                                       UIThreadExecutor {
     private static final String BUNDLE_KEY_WIDTH = "cngu.bundle.key.WIDTH";
     private static final String BUNDLE_KEY_HEIGHT = "cngu.bundle.key.HEIGHT";
-    private static final String BUNDLE_KEY_BITMAP = "cngu.bundle.key.BITMAP";
 
     private Bundle mSavedState;
 
@@ -44,7 +42,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     private MyCircleImageView mProgressCircleView;
     private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
-    private Bitmap mKittenBitmap;
 
     private KittenPhotoPresenter mPresenter;
 
@@ -164,22 +161,18 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         if (inState != null) {
             String width = inState.getString(BUNDLE_KEY_WIDTH);
             String height = inState.getString(BUNDLE_KEY_HEIGHT);
-            mKittenBitmap = inState.getParcelable(BUNDLE_KEY_BITMAP);
 
             mWidthEditText.setText(width);
             mHeightEditText.setText(height);
-            mKittenImageView.setImageBitmap(mKittenBitmap);
         }
     }
 
     private void saveViewState(Bundle outState) {
         String width = mWidthEditText.getText().toString();
         String height = mHeightEditText.getText().toString();
-        Bitmap bitmap = mKittenBitmap;
 
         outState.putString(BUNDLE_KEY_WIDTH, width);
         outState.putString(BUNDLE_KEY_HEIGHT, height);
-        outState.putParcelable(BUNDLE_KEY_BITMAP, bitmap);
     }
 
     @Override
@@ -197,11 +190,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
         initializeView();
         restoreViewState(mSavedState);
-
-        // Notify presenter of first view creation only
-        if (mSavedState == null) {
-            mPresenter.onViewCreated();
-        }
+        mPresenter.onViewCreated();
 
         mSavedState = null;
     }
@@ -253,8 +242,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     @Override
     public void setKittenPhoto(Bitmap kittenBitmap) {
-        mKittenBitmap = kittenBitmap;
-        mKittenImageView.setImageBitmap(mKittenBitmap);
+        mKittenImageView.setImageBitmap(kittenBitmap);
     }
 
     @Override
