@@ -27,10 +27,13 @@
                 android:text="@string/default_width"
                 android:hint="@string/width"
                 android:maxLength="4"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:imeOptions="actionNext"
+                android:nextFocusRight="@+id/height_edittext"
+                android:nextFocusForward="@id/height_edittext"/>
 
             <EditText
-                android:id="@+id/height_edittext"
+                android:id="@id/height_edittext"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/width_edittext"
@@ -40,7 +43,8 @@
                 android:text="@string/default_height"
                 android:hint="@string/height"
                 android:maxLength="4"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:imeOptions="actionDone"/>
 
             <Button
                 android:id="@+id/search_button"

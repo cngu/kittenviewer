@@ -63,6 +63,7 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
                     download.getWidth(), download.getHeight()));
         }
 
+        // TODO: Have activity pass this in ctor
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
