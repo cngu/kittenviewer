@@ -11,7 +11,6 @@ import android.support.v4.widget.MyCircleImageView;
 import android.support.v4.widget.MyMaterialProgressDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -34,8 +33,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     private static final String BUNDLE_KEY_WIDTH = "cngu.bundle.key.WIDTH";
     private static final String BUNDLE_KEY_HEIGHT = "cngu.bundle.key.HEIGHT";
 
-    private Bundle mSavedState;
-
     private EditText mWidthEditText;
     private EditText mHeightEditText;
     private MyCircleImageView mProgressCircleView;
@@ -49,16 +46,22 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     private Intent mServiceIntent;
     private boolean mServiceBound = false;
 
+    private boolean mLoadedDefaultPhoto = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSavedState = savedInstanceState;
-
         mServiceIntent = new Intent(this, ImageDownloadServiceImpl.class);
+
+        // Initialize View and Presenter
+        mPresenter = new KittenPhotoPresenterImpl(this, this);
+        initializeView();
 
         if (savedInstanceState == null) {
             startService(mServiceIntent);
+        } else {
+            restoreViewState(savedInstanceState);
         }
     }
 
@@ -165,22 +168,16 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     }
 
     private void restoreViewState(Bundle inState) {
-        if (inState != null) {
-            String width = inState.getString(BUNDLE_KEY_WIDTH);
-            String height = inState.getString(BUNDLE_KEY_HEIGHT);
+        String width = inState.getString(BUNDLE_KEY_WIDTH);
+        String height = inState.getString(BUNDLE_KEY_HEIGHT);
 
-            Log.d("TAG", "Restored " + width + " " + height);
-
-            mWidthEditText.setText(width);
-            mHeightEditText.setText(height);
-        }
+        mWidthEditText.setText(width);
+        mHeightEditText.setText(height);
     }
 
     private void saveViewState(Bundle outState) {
         String width = mWidthEditText.getText().toString();
         String height = mHeightEditText.getText().toString();
-
-        Log.d("TAG", "Saved " + width + " " + height);
 
         outState.putString(BUNDLE_KEY_WIDTH, width);
         outState.putString(BUNDLE_KEY_HEIGHT, height);
@@ -188,22 +185,17 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        // Bind to service
         ImageDownloadServiceImpl.ImageDownloadBinder binder =
                 (ImageDownloadServiceImpl.ImageDownloadBinder) service;
 
         ImageDownloadService imageDownloadService = binder.getService();
         mServiceBound = true;
 
-        // Initialize View and Presenter
-        mPresenter = new KittenPhotoPresenterImpl(this, this);
         mPresenter.onServiceConnected(imageDownloadService);
-
-        initializeView();
-        restoreViewState(mSavedState);
-        mPresenter.onViewCreated();
-
-        mSavedState = null;
+        if (!mLoadedDefaultPhoto) {
+            mPresenter.onRequestPhotoRefresh();
+            mLoadedDefaultPhoto = true;
+        }
     }
 
     @Override

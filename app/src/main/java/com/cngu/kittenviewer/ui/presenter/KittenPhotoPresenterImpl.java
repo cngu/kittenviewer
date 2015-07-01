@@ -24,7 +24,7 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
     }
 
     @Override
-    public void onViewCreated() {
+    public void onRequestPhotoRefresh() {
         downloadPlaceKittenPhoto();
     }
 
