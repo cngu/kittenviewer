@@ -12,8 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,7 +36,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private EditText mWidthEditText;
     private EditText mHeightEditText;
-    private Button mSearchButton;
+    private ImageView mSearchButton;
     private MyCircleImageView mProgressCircleView;
     private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
@@ -49,7 +47,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private Intent mServiceIntent;
     private boolean mServiceBound = false;
-    private ImageDownloadService mImageDownloadService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +71,7 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         // Find views from layout
         mWidthEditText = (EditText) findViewById(R.id.width_edittext);
         mHeightEditText = (EditText) findViewById(R.id.height_edittext);
-        mSearchButton = (Button) findViewById(R.id.search_button);
+        mSearchButton = (ImageView) findViewById(R.id.search_button);
         mKittenImageView = (ImageView) findViewById(R.id.kitten_imageview);
         RelativeLayout photoContainer = (RelativeLayout) findViewById(R.id.photo_container);
 
@@ -181,12 +178,12 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         ImageDownloadServiceImpl.ImageDownloadBinder binder =
                 (ImageDownloadServiceImpl.ImageDownloadBinder) service;
 
-        mImageDownloadService = binder.getService();
+        ImageDownloadService imageDownloadService = binder.getService();
         mServiceBound = true;
 
         // Initialize View and Presenter
         mPresenter = new KittenPhotoPresenterImpl(this, this);
-        mPresenter.onServiceConnected(mImageDownloadService);
+        mPresenter.onServiceConnected(imageDownloadService);
 
         initializeView();
         restoreViewState(mSavedState);
@@ -198,23 +195,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     @Override
     public void onServiceDisconnected(ComponentName name) {
         mServiceBound = false;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_kitten_photo, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -1,18 +1,28 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
-        <item name="android:windowBackground">@color/default_background</item>
+        <item name="android:windowBackground">@color/default_window_background</item>
+    </style>
+
+    <style name="AppTheme" parent="BaseAppTheme">
     </style>
 
     <!-- Toolbar Themes -->
     <style name="ToolbarThemeOverlay" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:background">@null</item>
     </style>
 
     <style name="ToolbarPopupThemeOverlay" parent="@style/ThemeOverlay.AppCompat.Light">
         <item name="android:background">@color/blue_grey_50</item>
+    </style>
+
+    <!-- Widgets -->
+    <style name="Label" parent="android:TextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textAllCaps">true</item>
     </style>
 
 </resources>
