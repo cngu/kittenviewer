@@ -56,8 +56,13 @@ public class ImageDownloadServiceImpl extends Service implements ImageDownloadSe
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (DEBUG) Log.i(TAG, "onDestroy");
+
+        if (mDownloadTask != null) {
+            mDownloadTask.cancel();
+        }
+
+        super.onDestroy();
     }
 
     @Override
