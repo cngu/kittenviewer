@@ -6,8 +6,6 @@
     <!-- EditText -->
     <string name="width">width</string>
     <string name="height">height</string>
-    <string name="default_width">1280</string>
-    <string name="default_height">720</string>
 
     <!-- Toast -->
     <string name="msg_placekitten_missing_photo">We couldn\'t find a photo with that size :(</string>

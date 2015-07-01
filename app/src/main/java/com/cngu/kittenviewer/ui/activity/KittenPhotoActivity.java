@@ -4,9 +4,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.MyCircleImageView;
 import android.support.v4.widget.MyMaterialProgressDrawable;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +34,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
                                                                       UIThreadExecutor {
     private static final String BUNDLE_KEY_WIDTH = "cngu.bundle.key.WIDTH";
     private static final String BUNDLE_KEY_HEIGHT = "cngu.bundle.key.HEIGHT";
+    private static final String PREF_KEY_SEARCHED_WIDTH = "cngu.bundle.key.SEARCHED_WIDTH";
+    private static final String PREF_KEY_SEARCHED_HEIGHT = "cngu.bundle.key.SEARCHED_HEIGHT";
 
     private EditText mWidthEditText;
     private EditText mHeightEditText;
@@ -41,6 +45,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private KittenPhotoPresenter mPresenter;
 
+    private SharedPreferences mSharedPreferences;
+
     private Toast mToast;
 
     private Intent mServiceIntent;
@@ -48,9 +54,21 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private boolean mLoadedDefaultPhoto = false;
 
+    private int getLastSearchedWidth() {
+        int defaultWidth = getResources().getInteger(R.integer.default_width);
+        return mSharedPreferences.getInt(PREF_KEY_SEARCHED_WIDTH, defaultWidth);
+    }
+
+    private int getLastSearchedHeight() {
+        int defaultHeight = getResources().getInteger(R.integer.default_height);
+        return mSharedPreferences.getInt(PREF_KEY_SEARCHED_HEIGHT, defaultHeight);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mServiceIntent = new Intent(this, ImageDownloadServiceImpl.class);
 
@@ -79,6 +97,10 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         mWidthEditText = (EditText) findViewById(R.id.width_edittext);
         mHeightEditText = (EditText) findViewById(R.id.height_edittext);
         mKittenImageView = (ImageView) findViewById(R.id.kitten_imageview);
+
+        // Set default widths and heights
+        mWidthEditText.setText(Integer.toString(getLastSearchedWidth()));
+        mHeightEditText.setText(Integer.toString(getLastSearchedHeight()));
 
         // Intercept touch events on all views to determine if we should close the OSK
         rootContainer.setOnInterceptTouchEventListener(new InterceptingFrameLayout.OnInterceptTouchEventListener() {
@@ -112,6 +134,11 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int searchedWidth = getEditTextValueAsInt(mWidthEditText);
+                int searchedHeight = getEditTextValueAsInt(mHeightEditText);
+                mSharedPreferences.edit().putInt(PREF_KEY_SEARCHED_WIDTH, searchedWidth).apply();
+                mSharedPreferences.edit().putInt(PREF_KEY_SEARCHED_HEIGHT, searchedHeight).apply();
+
                 mPresenter.onSearchButtonClicked();
             }
         });
@@ -205,20 +232,12 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     @Override
     public int getRequestedPhotoWidth() {
-        String widthText = mWidthEditText.getText().toString();
-        if (widthText.isEmpty()) {
-            return -1;
-        }
-        return Integer.parseInt(widthText);
+        return getLastSearchedWidth();
     }
 
     @Override
     public int getRequestedPhotoHeight() {
-        String heightText = mHeightEditText.getText().toString();
-        if (heightText.isEmpty()) {
-            return -1;
-        }
-        return Integer.parseInt(heightText);
+        return getLastSearchedHeight();
     }
 
     @Override
@@ -264,5 +283,14 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
         return (x > viewX && x < (viewX + view.getWidth())) &&
                (y > viewY && y < (viewY + view.getHeight()));
+    }
+
+    private int getEditTextValueAsInt(EditText editText) {
+        String text = editText.getText().toString();
+        if (text.isEmpty()) {
+            return -1;
+        } else {
+            return Integer.parseInt(text);
+        }
     }
 }

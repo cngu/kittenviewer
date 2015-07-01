@@ -58,7 +58,6 @@
                 android:layout_toLeftOf="@id/search_button"
                 android:layout_toStartOf="@id/search_button"
                 android:layout_marginTop="5dp"
-                android:text="@string/default_height"
                 android:maxLength="4"
                 android:inputType="number"
                 android:imeOptions="actionDone|flagNoExtractUi"/>
@@ -82,7 +81,6 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
-                android:text="@string/default_width"
                 android:maxLength="4"
                 android:inputType="number"
                 android:imeOptions="actionNext|flagNoExtractUi"

@@ -27,6 +27,8 @@ public class PlaceKittenBitmapDaoImpl implements PlaceKittenBitmapDao {
         decoder.setRequestedBitmapSize(width, height);
 
         InputStream is = null;
+
+
         try {
             // Generate placekitten URL and open a connection
             if (DEBUG) Log.i(TAG, "Establishing connection to placekitten...");
@@ -52,6 +54,7 @@ public class PlaceKittenBitmapDaoImpl implements PlaceKittenBitmapDao {
             if (is != null) {
                 if (DEBUG) Log.i(TAG, "Closing connection to placekitten");
                 is.close();
+
             }
         }
     }
