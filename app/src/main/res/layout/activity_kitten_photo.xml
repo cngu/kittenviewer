@@ -46,10 +46,11 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:background="@drawable/selectable_item_background"
-                android:src="@android:drawable/ic_menu_search"
+                android:padding="10dp"
+                android:src="@drawable/ic_search_white_36dp"
                 android:tint="@android:color/white"
-                android:scaleType="centerInside"/>
+                android:scaleType="centerInside"
+                android:background="@drawable/selectable_item_background"/>
 
             <EditText
                 android:id="@+id/height_edittext"
