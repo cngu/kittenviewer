@@ -1,7 +1,8 @@
-<FrameLayout
+<com.cngu.kittenviewer.ui.widget.InterceptingFrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".KittenPhotoActivity">
@@ -102,4 +103,4 @@
 
     </android.support.v7.widget.Toolbar>
 
-</FrameLayout>
+</com.cngu.kittenviewer.ui.widget.InterceptingFrameLayout>

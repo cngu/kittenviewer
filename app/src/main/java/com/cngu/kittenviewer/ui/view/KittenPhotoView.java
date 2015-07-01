@@ -7,8 +7,6 @@ public interface KittenPhotoView {
 
     int getRequestedPhotoHeight();
 
-    void setSearchButtonEnabled(boolean enabled);
-
     void setKittenPhoto(Bitmap kittenBitmap);
 
     void setDownloadProgressBarVisibility(boolean visible);

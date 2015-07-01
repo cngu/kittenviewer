@@ -39,12 +39,6 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
     }
 
     @Override
-    public void onRequestedPhotoDimenChanged(int requestedPhotoWidth, int requestedPhotoHeight) {
-        boolean validDimensions = requestedPhotoWidth > 0 && requestedPhotoHeight > 0;
-        mView.setSearchButtonEnabled(validDimensions);
-    }
-
-    @Override
     public void onDownloadComplete(final Bitmap download) {
         if (DEBUG) {
             Log.i(TAG, String.format("Received bitmap of size: %dx%d",
@@ -80,7 +74,8 @@ public class KittenPhotoPresenterImpl implements KittenPhotoPresenter, DownloadL
         int reqWidth = mView.getRequestedPhotoWidth();
         int reqHeight = mView.getRequestedPhotoHeight();
         if (reqWidth <= 0 || reqHeight <= 0) {
-            Log.e(TAG, "Can not download photo with invalid size dimensions <=0");
+            if (DEBUG) Log.d(TAG, "Can not download photo with invalid size dimensions <=0");
+            mView.showToast(R.string.msg_invalid_size);
             return;
         }
 

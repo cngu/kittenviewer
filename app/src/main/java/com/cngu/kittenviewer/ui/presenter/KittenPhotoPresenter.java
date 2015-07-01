@@ -7,7 +7,5 @@ public interface KittenPhotoPresenter {
 
     void onSearchButtonClicked();
 
-    void onRequestedPhotoDimenChanged(int requestedPhotoWidth, int requestedPhotoHeight);
-
     void onServiceConnected(ImageDownloadService imageDownloadService);
 }

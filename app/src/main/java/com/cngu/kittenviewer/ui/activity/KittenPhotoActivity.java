@@ -1,6 +1,7 @@
 package com.cngu.kittenviewer.ui.activity;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
@@ -10,10 +11,10 @@ import android.support.v4.widget.MyCircleImageView;
 import android.support.v4.widget.MyMaterialProgressDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -25,6 +26,7 @@ import com.cngu.kittenviewer.domain.service.ImageDownloadServiceImpl;
 import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenter;
 import com.cngu.kittenviewer.ui.presenter.KittenPhotoPresenterImpl;
 import com.cngu.kittenviewer.ui.view.KittenPhotoView;
+import com.cngu.kittenviewer.ui.widget.InterceptingFrameLayout;
 
 public class KittenPhotoActivity extends AppCompatActivity implements KittenPhotoView,
                                                                       ServiceConnection,
@@ -36,7 +38,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
     private EditText mWidthEditText;
     private EditText mHeightEditText;
-    private ImageView mSearchButton;
     private MyCircleImageView mProgressCircleView;
     private MyMaterialProgressDrawable mProgress;
     private ImageView mKittenImageView;
@@ -69,34 +70,43 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
         setSupportActionBar(toolbar);
 
         // Find views from layout
+        InterceptingFrameLayout rootContainer = (InterceptingFrameLayout) findViewById(R.id.root_container);
+        ImageView searchButton = (ImageView) findViewById(R.id.search_button);
+        RelativeLayout photoContainer = (RelativeLayout) findViewById(R.id.photo_container);
         mWidthEditText = (EditText) findViewById(R.id.width_edittext);
         mHeightEditText = (EditText) findViewById(R.id.height_edittext);
-        mSearchButton = (ImageView) findViewById(R.id.search_button);
         mKittenImageView = (ImageView) findViewById(R.id.kitten_imageview);
-        RelativeLayout photoContainer = (RelativeLayout) findViewById(R.id.photo_container);
 
-        // Initialize views
-        TextWatcher tw = new TextWatcher() {
+        // Intercept touch events on all views to determine if we should close the OSK
+        rootContainer.setOnInterceptTouchEventListener(new InterceptingFrameLayout.OnInterceptTouchEventListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Do nothing
+            public boolean onInterceptTouchEvent(MotionEvent ev) {
+                if (ev.getAction() == MotionEvent.ACTION_UP) {
+                    float x = ev.getRawX();
+                    float y = ev.getRawY();
+                    boolean insideWidthEditText = isPointInsideView(x, y, mWidthEditText);
+                    boolean insideHeightEditText = isPointInsideView(x, y, mHeightEditText);
+                    boolean widthEditTextFocus = mWidthEditText.hasFocus();
+                    boolean heightEditTextFocus = mHeightEditText.hasFocus();
+
+                    if (!insideWidthEditText && !insideHeightEditText) {
+                        if (widthEditTextFocus) {
+                            mWidthEditText.clearFocus();
+                            hideKeyboard();
+                        } else if (heightEditTextFocus) {
+                            mHeightEditText.clearFocus();
+                            hideKeyboard();
+                        }
+                    }
+                }
+
+                // Never consume the event; only intercept and pass it on
+                return false;
             }
+        });
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Do nothing
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mPresenter.onRequestedPhotoDimenChanged(getRequestedPhotoWidth(), getRequestedPhotoHeight());
-            }
-        };
-
-        mWidthEditText.addTextChangedListener(tw);
-        mHeightEditText.addTextChangedListener(tw);
-
-        mSearchButton.setOnClickListener(new View.OnClickListener() {
+        // Notify Presenter of the search button click event
+        searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mPresenter.onSearchButtonClicked();
@@ -159,6 +169,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
             String width = inState.getString(BUNDLE_KEY_WIDTH);
             String height = inState.getString(BUNDLE_KEY_HEIGHT);
 
+            Log.d("TAG", "Restored " + width + " " + height);
+
             mWidthEditText.setText(width);
             mHeightEditText.setText(height);
         }
@@ -167,6 +179,8 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     private void saveViewState(Bundle outState) {
         String width = mWidthEditText.getText().toString();
         String height = mHeightEditText.getText().toString();
+
+        Log.d("TAG", "Saved " + width + " " + height);
 
         outState.putString(BUNDLE_KEY_WIDTH, width);
         outState.putString(BUNDLE_KEY_HEIGHT, height);
@@ -216,11 +230,6 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
     }
 
     @Override
-    public void setSearchButtonEnabled(boolean enabled) {
-        mSearchButton.setEnabled(enabled);
-    }
-
-    @Override
     public void setKittenPhoto(Bitmap kittenBitmap) {
         mKittenImageView.setImageBitmap(kittenBitmap);
     }
@@ -244,5 +253,24 @@ public class KittenPhotoActivity extends AppCompatActivity implements KittenPhot
 
         mToast = Toast.makeText(this, msgResId, Toast.LENGTH_SHORT);
         mToast.show();
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        View focusedView = getCurrentFocus();
+        if (focusedView != null) {
+            imm.hideSoftInputFromWindow(focusedView.getWindowToken(), 0);
+        }
+    }
+
+    private boolean isPointInsideView(float x, float y, View view){
+        int location[] = new int[2];
+        view.getLocationOnScreen(location);
+        int viewX = location[0];
+        int viewY = location[1];
+
+        return (x > viewX && x < (viewX + view.getWidth())) &&
+               (y > viewY && y < (viewY + view.getHeight()));
     }
 }
